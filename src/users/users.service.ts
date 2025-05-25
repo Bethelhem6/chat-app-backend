@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -10,28 +10,37 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findOneByFirebaseUid(firebaseUid: string): Promise<User | undefined> {
-    const user = await this.usersRepository.findOne({
+  async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { phone_number: phoneNumber },
+    });
+  }
+
+  async findByFirebaseUid(firebaseUid: string): Promise<User | null> {
+    return this.usersRepository.findOne({
       where: { firebase_uid: firebaseUid },
     });
-    return user ?? undefined;
   }
 
-  async createUser(firebaseUid: string, phoneNumber: string): Promise<User> {
-    const user = this.usersRepository.create({
-      firebase_uid: firebaseUid,
-      phone_number: phoneNumber,
+  async isUsernameAvailable(username: string): Promise<boolean> {
+    const existing = await this.usersRepository.findOne({
+      where: { username },
     });
-    return this.usersRepository.save(user);
+    return !existing;
   }
 
-  async updateUser(userId: number, updateData: Partial<User>): Promise<User> {
-    await this.usersRepository.update(userId, updateData);
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new Error(`User with id ${userId} not found`);
+  async createUser(userData: {
+    firebase_uid: string;
+    phone_number: string;
+    username: string;
+    profile_picture_url?: string;
+  }): Promise<User> {
+    if (!(await this.isUsernameAvailable(userData.username))) {
+      throw new ConflictException('Username already taken');
     }
-    return user;
+
+    const user = this.usersRepository.create(userData);
+    return this.usersRepository.save(user);
   }
 
   async findByPhoneNumbers(phoneNumbers: string[]): Promise<User[]> {

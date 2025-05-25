@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { FirebaseService } from '../firebase/firebase.service';
 import { UsersService } from '../users/users.service';
-import { User } from 'src/users/user.entity';
+import { FirebaseService } from 'src/firebase/firebase.service';
 
 @Injectable()
 export class AuthService {
@@ -10,25 +9,17 @@ export class AuthService {
     private usersService: UsersService,
   ) {}
 
-  async validateFirebaseToken(token: string): Promise<any> {
+  async verifyFirebaseToken(
+    token: string,
+  ): Promise<{ uid: string; phone_number: string }> {
     try {
-    //   const auth = this.firebaseService.getAuth();
-    //   const decodedToken = await auth.verifyIdToken(token);
-    //   return decodedToken;
+      const decoded = await this.firebaseService.getAuth().verifyIdToken(token);
+      return {
+        uid: decoded.uid,
+        phone_number: decoded.phone_number ?? '',
+      };
     } catch (error) {
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException('Invalid Firebase token');
     }
-  }
-
-  async loginOrCreateUser(token: string): Promise<User> {
-    const decodedToken = await this.validateFirebaseToken(token);
-    const { uid, phone_number } = decodedToken;
-
-    let user = await this.usersService.findOneByFirebaseUid(uid);
-    if (!user) {
-      user = await this.usersService.createUser(uid, phone_number);
-    }
-
-    return user;
   }
 }

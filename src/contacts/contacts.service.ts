@@ -52,4 +52,22 @@ export class ContactsService {
       relations: ['contact_user'],
     });
   }
+
+  async createContact(userId: number, contactUserId: number): Promise<Contact> {
+    const existingContact = await this.contactsRepository.findOne({
+      where: {
+        user: { id: userId },
+        contact_user: { id: contactUserId },
+      },
+    });
+
+    if (existingContact) return existingContact;
+
+    const newContact = this.contactsRepository.create({
+      user: { id: userId },
+      contact_user: { id: contactUserId },
+    });
+
+    return this.contactsRepository.save(newContact);
+  }
 }

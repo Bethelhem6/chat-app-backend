@@ -1,17 +1,32 @@
+import { User } from 'src/users/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  CreateDateColumn,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
-import { User } from '../users/user.entity';
 
 @Entity()
 export class Message {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ name: 'sender_id' })
+  senderId: number;
+
+  @Column({ name: 'receiver_id' })
+  receiverId: number;
+
+  @Column('text')
+  content: string;
+
+  @Column({ default: false })
+  is_read: boolean;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'sender_id' })
@@ -20,13 +35,4 @@ export class Message {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'receiver_id' })
   receiver: User;
-
-  @Column('text')
-  content: string;
-
-  @Column({ default: false })
-  is_read: boolean;
-
-  @CreateDateColumn()
-  created_at: Date;
 }

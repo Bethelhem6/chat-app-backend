@@ -1,3 +1,4 @@
+import { User } from 'src/users/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -5,14 +6,19 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../users/user.entity';
 
 @Entity()
 export class Contact {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
+  @Column({ name: 'user_id' })
+  userId: number;
+
+  @Column({ name: 'contact_user_id' })
+  contactUserId: number;
+
+  @ManyToOne(() => User, (user) => user.contacts)
   @JoinColumn({ name: 'user_id' })
   user: User;
 
@@ -23,4 +29,3 @@ export class Contact {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 }
-

@@ -1,18 +1,35 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ContactsService } from './contacts.service';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Contact } from './contact.entity';
 
-describe('ContactsService', () => {
-  let service: ContactsService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [ContactsService],
-    }).compile();
+@Injectable()
+export class ContactsService {
+  constructor(
+    @InjectRepository(Contact)
+    private contactsRepository: Repository<Contact>,
+  ) {}
 
-    service = module.get<ContactsService>(ContactsService);
-  });
+  async createContact(userId: number, contactUserId: number): Promise<Contact> {
+    const existing = await this.contactsRepository.findOne({
+      where: { userId, contactUserId },
+    });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-});
+    if (existing) return existing;
+
+    const contact = this.contactsRepository.create({
+      userId,
+      contactUserId,
+    });
+
+    return this.contactsRepository.save(contact);
+  }
+
+  async getUserContacts(userId: number): Promise<Contact[]> {
+    return this.contactsRepository.find({
+      where: { userId },
+      relations: ['contact_user'],
+    });
+  }
+}

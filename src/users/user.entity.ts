@@ -1,10 +1,6 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Contact } from 'src/contacts/contact.entity';
+import { Message } from 'src/messages/message.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
@@ -17,7 +13,7 @@ export class User {
   @Column({ unique: true })
   phone_number: string;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ unique: true })
   username: string;
 
   @Column({ nullable: true })
@@ -28,4 +24,13 @@ export class User {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToMany(() => Contact, (contact: Contact) => contact.user)
+  contacts: Contact[];
+
+  @OneToMany(() => Message, (message: Message) => message.sender)
+  sent_messages: Message[];
+
+  @OneToMany(() => Message, (message: Message) => message.receiver)
+  received_messages: Message[];
 }

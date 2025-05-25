@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Message } from './message.entity';
-import { User } from '../users/user.entity';
 
 @Injectable()
 export class MessagesService {
@@ -17,8 +16,8 @@ export class MessagesService {
     content: string,
   ): Promise<Message> {
     const message = this.messagesRepository.create({
-      sender: { id: senderId },
-      receiver: { id: receiverId },
+      senderId,
+      receiverId,
       content,
     });
     return this.messagesRepository.save(message);
