@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { ContactsModule } from './contacts/contacts.module';
 import { MessagesModule } from './messages/messages.module';
 import { FirebaseModule } from './firebase/firebase.module';
 
@@ -18,14 +17,15 @@ import { FirebaseModule } from './firebase/firebase.module';
       port: Number(process.env.DB_PORT) || 5432,
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASS || 'admin',
-      database: process.env.DB_NAME || 'testdb',
-      entities: [],
+      database: process.env.DB_NAME || 'chatdb',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true, // Set to false in production
     }),
     UsersModule,
     AuthModule,
-    ContactsModule,
-    MessagesModule,
-    FirebaseModule,
+    // ContactsModule,
+    // MessagesModule,
+    // FirebaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

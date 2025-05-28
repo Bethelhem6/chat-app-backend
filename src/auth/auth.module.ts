@@ -1,13 +1,24 @@
+// src/auth/auth.module.ts
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { User } from '../users/user.entity';
 import { AuthController } from './auth.controller';
-import { FirebaseModule } from '../firebase/firebase.module';
-import { UsersModule } from '../users/users.module';
+import { AuthService } from './auth.service';
+import { UsersService } from '../users/users.service';
+import { FirebaseService } from '../firebase/firebase.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [FirebaseModule, UsersModule],
-  providers: [AuthService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forFeature([User]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1d' },
+    }),
+  ],
   controllers: [AuthController],
+  providers: [AuthService, UsersService, FirebaseService],
 })
 export class AuthModule {}
-

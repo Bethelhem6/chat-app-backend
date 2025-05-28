@@ -1,6 +1,11 @@
-import { Contact } from 'src/contacts/contact.entity';
-import { Message } from 'src/messages/message.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+// src/users/user.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -8,29 +13,23 @@ export class User {
   id: number;
 
   @Column({ unique: true })
-  firebase_uid: string;
+  phoneNumber: string;
 
-  @Column({ unique: true })
-  phone_number: string;
-
-  @Column({ unique: true })
-  username: string;
+  @Column()
+  firstName: string;
 
   @Column({ nullable: true })
-  profile_picture_url: string;
+  lastName: string;
+
+  @Column({ nullable: true, unique: true })
+  username: string;
+
+  @Column({ default: 'user' })
+  role: string;
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
-
-  @OneToMany(() => Contact, (contact: Contact) => contact.user)
-  contacts: Contact[];
-
-  @OneToMany(() => Message, (message: Message) => message.sender)
-  sent_messages: Message[];
-
-  @OneToMany(() => Message, (message: Message) => message.receiver)
-  received_messages: Message[];
+  updatedAt: Date;
 }
